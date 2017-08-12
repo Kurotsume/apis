@@ -6,6 +6,7 @@ var userSchema = new mongoose.Schema({
 	created_at: {type:Date, default: Date.now}
 });
 
+// This is the schema that posts will follow
 var postSchema = new mongoose.Schema({
 	username: String,
 	//username: { type: mongoose.Schema.Types.ObjectId, ref:'User' },

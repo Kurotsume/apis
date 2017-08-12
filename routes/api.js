@@ -2,39 +2,15 @@ var express = require("express");
 var router = express.Router();
 var mongoose = require("mongoose");
 var Post = mongoose.model("Post");
-var User = mongoose.model("User");
 
-//INDEX 
-//NEW(form) 
-//CREATE (create)
-//SHOW
-//EDIT(form) 
-//PUT(update)
-//DELETE 
 
-//Used for routes that must be authenticated.
-isAuthenticated = function (req, res, next) {
-	// if user is authenticated in the session, call the next() to call the next request handler 
-	// Passport adds this method to request object. A middleware is allowed to add properties to
-	// request and response objects
-
-	//allow all get request methods
-	if(req.method === "GET"){
-		return next();
-	}
-	if (req.isAuthenticated()){
-		return next();
-	}
-
-	// if the user is not authenticated then redirect him to the login page
-	res.redirect('/#login');
-};
-
-router.use('/posts', isAuthenticated);
-
+// routes that will use /posts
 router.route('/posts')
-	//INDEX
+
+	// SHOW all posts
 	.get(function(req, res){
+
+
 		Post.find(function(err, posts){
 			if(err){
 				return res.send(500, err);
@@ -42,48 +18,74 @@ router.route('/posts')
 			return res.send(posts);
 		});
 	})
-	//CREATE
+
+	//CREATE one POST
 	.post(function(req, res){
+
+		// create a new post object based on the req.body information received.
 		var newPost = { 
 			username: req.body.username,
 			text: req.body.text
 		};
+		console.log(req.body)
+		console.log("USERNAME ------------------" + req.body.username);
 
-		Post.create(newPost, function(err, post){
+		// mongood function to create
+		// first param - db object (above)
+		// second function to handle process
+
+		Post.create(newPost, function(err, post){ // err, post are defaults (you can name them anything u want)
 			if(err){
-				res.send(500, err);
+				res.send(500, err); // send error along with 500 status
 			}
-			res.json(post);
+			res.json(post); // if no error send backs post
 		});
 	});
 
-//
+// routes that will use /post/:id
 router.route('/posts/:id')
-	//SHOW
+
+	//SHOW POST by ID
 	.get(function(req, res){
-		Post.findById(req.params.id, function(err, post){
+
+		// Mongoose's way of finding by ID. You can see mongoose website for examples of this.
+		Post.findById(req.params.id, function(err, post){ //err, post are defaults
+
 			if(err){
 				res.send(err);
 			}
+			// send the found post in a json response.
 			res.json(post);
 		});
 	})
-	//PUT
+
+	//PUT POST
 	.put(function(req, res){
+
+		// create a newpost object based on the request's body information
 		var newPost = {
 			username: req.body.username, 
 			text: req.body.text
 		};
 
-		Post.findByIdAndUpdate(req.params.id, newPost, function(err, updatedPost){
+		// find this post by id
+		// first param - id
+		// second param - updated post
+		// function to handle the process.
+		Post.findByIdAndUpdate(req.params.id, newPost, function(err, updatedPost){ //
 			if(err){
 				res.send(err);
 			}
+
+			// send back updated post 
 			res.json(updatedPost);
 		});
 	})
-	//DELETE
+
+	//DELETE POST
 	.delete(function(req, res){
+
+
 		Post.removeByIdAndRemove(req.params.id, function(err){
 			if(err){
 				res.send(err);
